@@ -1,26 +1,49 @@
 <?php
-include "db.php";
+session_start();
+require_once "includes/db.php";
 
-$username = $_POST['username'];
-$password = $_POST['password'];
+if (isset($_POST['login'])) {
+    $username = trim($_POST['username']);
+    $password = trim($_POST['password']);
 
-$sql = "SELECT * FROM users WHERE username = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("s", $username);
-$stmt->execute();
-$result = $stmt->get_result();
+    $stmt = $conn->prepare("SELECT id, username, password FROM users WHERE username = ?");
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $res = $stmt->get_result();
 
-if ($result->num_rows > 0) {
-    $user = $result->fetch_assoc();
-    if (password_verify($password, $user['password'])) {
-        echo "Login berhasil! Selamat datang, " . htmlspecialchars($user['username']);
+    if ($res->num_rows === 1) {
+        $row = $res->fetch_assoc();
+        if (password_verify($password, $row['password'])) {
+            $_SESSION['user_id'] = $row['id'];
+            $_SESSION['username'] = $row['username'];
+            header("Location: home.php");
+            exit();
+        } else {
+            $error = "Username atau password salah";
+        }
     } else {
-        echo "Password salah!";
+        $error = "Username atau password salah";
     }
-} else {
-    echo "User tidak ditemukan!";
+    $stmt->close();
 }
-
-$stmt->close();
-$conn->close();
 ?>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+</head>
+<body>
+    <h2>Login</h2>
+    <?php if (!empty($error)): ?>
+        <p style="color:red;"><?php echo htmlspecialchars($error); ?></p>
+    <?php endif; ?>
+    <form method="post" action="">
+        <label>Username:</label><br>
+        <input type="text" name="username" required><br><br>
+        <label>Password:</label><br>
+        <input type="password" name="password" required><br><br>
+        <button type="submit" name="login">Login</button>
+    </form>
+    <p>Belum punya akun? <a href="register.php">Tambah User</a></p>
+</body>
+</html>
