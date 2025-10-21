@@ -7,14 +7,18 @@
     <title>Data Users</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 30px; }
-        table { border-collapse: collapse; width: 60%; }
+        table { border-collapse: collapse; width: 70%; }
         th, td { border: 1px solid #999; padding: 8px 12px; text-align: left; }
         th { background-color: #f2f2f2; }
-        h2 { color: #333; }
+        a { text-decoration: none; color: white; background-color: #4CAF50; padding: 6px 12px; border-radius: 4px; }
+        a:hover { background-color: #45a049; }
     </style>
 </head>
 <body>
-    <h2>Data Users</h2>
+    <h2>Data Userku</h2>
+
+    <a href="tambah.php">+ Tambah Data</a>
+    <br><br>
 
     <table>
         <tr>
@@ -24,19 +28,19 @@
         </tr>
 
         <?php
-        $sql = "SELECT id, username, password FROM users";
+        $sql = "SELECT id, username, password FROM keuangan_users";
         $result = $conn->query($sql);
 
-        if ($result->num_rows > 0) {
-            while($row = $result->fetch_assoc()) {
+        if ($result && $result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
                 echo "<tr>";
-                echo "<td>" . $row["id"] . "</td>";
-                echo "<td>" . $row["username"] . "</td>";
-                echo "<td>" . $row["password"] . "</td>";
+                echo "<td>" . htmlspecialchars($row['id']) . "</td>";
+                echo "<td>" . htmlspecialchars($row['username']) . "</td>";
+                echo "<td>" . htmlspecialchars($row['password']) . "</td>";
                 echo "</tr>";
             }
         } else {
-            echo "<tr><td colspan='3'>Tidak ada data</td></tr>";
+            echo "<tr><td colspan='3'>Tidak ada data ditemukan</td></tr>";
         }
 
         $conn->close();
